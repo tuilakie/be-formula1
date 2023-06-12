@@ -85,7 +85,7 @@ async function main() {
     const row = racesData[i];
     try {
       if (Object.keys(row).length !== 0) {
-        const { season, grandPrix, date, title, ranking } = row;
+        const { season, grandPrix, date, circuit, title, ranking } = row;
         await prisma.season.upsert({
           where: { name: season },
           update: {
@@ -95,9 +95,10 @@ async function main() {
                   title: title,
                 },
                 create: {
-                  title: title,
+                  title,
                   grandPrix: grandPrix,
-                  date: date,
+                  date,
+                  circuit,
                 },
               },
             },

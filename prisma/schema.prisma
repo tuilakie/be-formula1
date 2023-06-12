@@ -11,11 +11,9 @@ datasource db {
 }
 
 model Team {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  drivers   Driver[]
+  id      Int      @id @default(autoincrement())
+  name    String
+  drivers Driver[]
 
   @@unique([name])
   @@map("teams")
@@ -25,8 +23,6 @@ model Driver {
   id          Int       @id @default(autoincrement())
   name        String
   nationality String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
   teams       Team[]
   Ranking     Ranking[]
 
@@ -35,11 +31,9 @@ model Driver {
 }
 
 model Season {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  races     Race[]
+  id    Int    @id @default(autoincrement())
+  name  String
+  races Race[]
 
   @@unique([name])
   @@map("seasons")
@@ -50,6 +44,7 @@ model Race {
   title     String
   grandPrix String
   date      String
+  circuit   String
   Ranking   Ranking[]
   Season    Season?   @relation(fields: [seasonId], references: [id])
   seasonId  Int?
@@ -61,14 +56,12 @@ model Race {
 // rank is model relation many to many of races and drivers
 
 model Ranking {
-  position  String
-  points    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  driver    Driver   @relation(fields: [driverId], references: [id])
-  driverId  Int
-  race      Race     @relation(fields: [raceId], references: [id])
-  raceId    Int
+  position String
+  points   String
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int
+  race     Race   @relation(fields: [raceId], references: [id])
+  raceId   Int
 
   @@id([raceId, driverId])
 }
