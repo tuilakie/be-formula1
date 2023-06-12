@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  drivers   Driver[]
+
+  @@unique([name])
+  @@map("teams")
+}
+
+model Driver {
+  id          Int       @id @default(autoincrement())
+  name        String
+  nationality String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  teams       Team[]
+  Ranking     Ranking[]
+
+  @@unique([name])
+  @@map("drivers")
+}
+
+model Season {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  races     Race[]
+
+  @@unique([name])
+  @@map("seasons")
+}
+
+model Race {
+  id        Int       @id @default(autoincrement())
+  title     String
+  grandPrix String
+  date      String
+  Ranking   Ranking[]
+  Season    Season?   @relation(fields: [seasonId], references: [id])
+  seasonId  Int?
+
+  @@unique([title])
+  @@map("races")
+}
+
+// rank is model relation many to many of races and drivers
+
+model Ranking {
+  position  String
+  points    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  driverId  Int
+  race      Race     @relation(fields: [raceId], references: [id])
+  raceId    Int
+
+  @@id([raceId, driverId])
+}

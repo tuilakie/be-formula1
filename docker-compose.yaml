@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:latest
+    container_name: formula-db
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: tuilakie
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: formula_db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
