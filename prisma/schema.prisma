@@ -11,60 +11,71 @@ datasource db {
 }
 
 model Team {
-  id      Int      @id @default(autoincrement())
-  name    String
-  drivers Driver[]
+  name             String
+  driverTeamSeason DriverTeamSeason[]
 
-  @@unique([name])
+  @@id([name])
   @@map("teams")
 }
 
 model Driver {
-  id          Int       @id @default(autoincrement())
-  name        String
-  nationality String
-  teams       Team[]
-  Ranking     Ranking[]
+  name             String
+  nationality      String
+  Ranking          Ranking[]
+  driverTeamSeason DriverTeamSeason[]
 
-  @@unique([name])
+  @@id([name])
   @@map("drivers")
 }
 
 model Season {
-  id    Int    @id @default(autoincrement())
-  name  String
-  races Race[]
+  name             String
+  races            Race[]
+  driverTeamSeason DriverTeamSeason[]
 
-  @@unique([name])
+  @@id([name])
   @@map("seasons")
 }
 
 model Race {
-  id        Int       @id @default(autoincrement())
-  title     String
-  grandPrix String
-  date      DateTime
-  circuit   String
-  Ranking   Ranking[]
-  Season    Season?   @relation(fields: [seasonId], references: [id])
-  seasonId  Int?
+  title      String
+  grandPrix  String
+  date       DateTime
+  circuit    String
+  ranking    Ranking[]
+  season     Season    @relation(fields: [seasonName], references: [name])
+  seasonName String
 
+  @@id([seasonName, grandPrix])
   @@unique([title])
-  @@unique([grandPrix, seasonId])
   @@map("races")
 }
 
 // rank is model relation many to many of races and drivers
 
 model Ranking {
-  position String
-  points   String
-  laps     String
-  time     String
-  driver   Driver @relation(fields: [driverId], references: [id])
-  driverId Int
-  race     Race   @relation(fields: [raceId], references: [id])
-  raceId   Int
+  position   String
+  points     String
+  laps       String
+  time       String
+  driver     Driver @relation(fields: [driverName], references: [name])
+  driverName String
+  race       Race   @relation(fields: [seasonName, grandPrix], references: [seasonName, grandPrix])
+  seasonName String
+  grandPrix  String
 
-  @@id([raceId, driverId])
+  @@id([driverName, grandPrix, seasonName])
+}
+
+model DriverTeamSeason {
+  driver     Driver @relation(fields: [driverName], references: [name])
+  driverName String
+
+  team     Team   @relation(fields: [teamName], references: [name])
+  teamName String
+
+  season     Season @relation(fields: [seasonName], references: [name])
+  seasonName String
+
+  @@id([driverName, teamName, seasonName])
 }
