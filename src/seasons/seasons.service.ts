@@ -1,3 +1,4 @@
+import { race } from 'rxjs';
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -12,7 +13,6 @@ export class SeasonsService {
       }
       return this.prisma.season.findMany({
         select: {
-          id: true,
           name: true,
         },
         skip: +skip,
@@ -21,7 +21,6 @@ export class SeasonsService {
     }
     return this.prisma.season.findMany({
       select: {
-        id: true,
         name: true,
       },
     });
@@ -33,15 +32,16 @@ export class SeasonsService {
         name,
       },
       select: {
-        id: true,
         name: true,
         races: {
           select: {
-            id: true,
             title: true,
             grandPrix: true,
             date: true,
             circuit: true,
+          },
+          orderBy: {
+            date: 'asc',
           },
         },
       },
