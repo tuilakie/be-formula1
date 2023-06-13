@@ -196,7 +196,7 @@ async function main() {
               },
             },
             update: {
-              points: rankRow.points,
+              points: +rankRow.points,
               position: rankRow.position,
               laps: rankRow.laps,
               time: rankRow.time,
@@ -218,7 +218,7 @@ async function main() {
               },
             },
             create: {
-              points: rankRow.points,
+              points: +rankRow.points,
               position: rankRow.position,
               laps: rankRow.laps,
               time: rankRow.time,

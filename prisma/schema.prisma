@@ -47,7 +47,6 @@ model Race {
   seasonName String
 
   @@id([seasonName, grandPrix])
-  @@unique([title])
   @@map("races")
 }
 
@@ -55,7 +54,7 @@ model Race {
 
 model Ranking {
   position   String
-  points     String
+  points     Float
   laps       String
   time       String
   driver     Driver @relation(fields: [driverName], references: [name])
