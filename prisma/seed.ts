@@ -57,8 +57,13 @@ async function main() {
           where: { name: driver.driver },
           update: {
             teams: {
-              connect: {
-                name: driver.team,
+              connectOrCreate: {
+                where: {
+                  name: driver.team,
+                },
+                create: {
+                  name: driver.team,
+                },
               },
             },
           },
@@ -66,8 +71,13 @@ async function main() {
             name: driver.driver,
             nationality: driver.nationality,
             teams: {
-              connect: {
-                name: driver.team,
+              connectOrCreate: {
+                where: {
+                  name: driver.team,
+                },
+                create: {
+                  name: driver.team,
+                },
               },
             },
           },
@@ -97,7 +107,7 @@ async function main() {
                 create: {
                   title,
                   grandPrix: grandPrix,
-                  date,
+                  date: new Date(date),
                   circuit,
                 },
               },
@@ -105,6 +115,19 @@ async function main() {
           },
           create: {
             name: season,
+            races: {
+              connectOrCreate: {
+                where: {
+                  title: title,
+                },
+                create: {
+                  title,
+                  grandPrix: grandPrix,
+                  date: new Date(date),
+                  circuit,
+                },
+              },
+            },
           },
           select: {
             races: {
@@ -122,14 +145,40 @@ async function main() {
             data: {
               position: rankRow.position,
               points: rankRow.points,
+              laps: rankRow.laps,
+              time: rankRow.time,
               driver: {
-                connect: {
-                  name: rankRow.driver,
+                connectOrCreate: {
+                  where: {
+                    name: rankRow.driver,
+                  },
+                  create: {
+                    name: rankRow.driver,
+                    nationality: 'unknown',
+                    teams: {
+                      connectOrCreate: {
+                        where: {
+                          name: rankRow.team,
+                        },
+                        create: {
+                          name: rankRow.team,
+                        },
+                      },
+                    },
+                  },
                 },
               },
               race: {
-                connect: {
-                  title: title,
+                connectOrCreate: {
+                  where: {
+                    title: title,
+                  },
+                  create: {
+                    title,
+                    grandPrix: grandPrix,
+                    date: new Date(date),
+                    circuit,
+                  },
                 },
               },
             },

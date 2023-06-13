@@ -43,13 +43,14 @@ model Race {
   id        Int       @id @default(autoincrement())
   title     String
   grandPrix String
-  date      String
+  date      DateTime
   circuit   String
   Ranking   Ranking[]
   Season    Season?   @relation(fields: [seasonId], references: [id])
   seasonId  Int?
 
   @@unique([title])
+  @@unique([grandPrix, seasonId])
   @@map("races")
 }
 
@@ -58,6 +59,8 @@ model Race {
 model Ranking {
   position String
   points   String
+  laps     String
+  time     String
   driver   Driver @relation(fields: [driverId], references: [id])
   driverId Int
   race     Race   @relation(fields: [raceId], references: [id])
