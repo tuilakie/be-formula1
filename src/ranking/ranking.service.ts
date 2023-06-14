@@ -1,10 +1,23 @@
 import { PrismaService } from './../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import {
+  RankingRaces,
+  RankingRacesDetail,
+} from './entities/races/ranking.races.entity';
+import { BaseResponse } from '@/base/base.response.api';
+import {
+  RankingDriver,
+  RankingDriverDetail,
+} from './entities/drivers/ranking.drivers.entity';
+import {
+  RankingTeam,
+  RankingTeamDetail,
+} from './entities/teams/ranking.races.entity';
 
 @Injectable()
 export class RankingService {
   constructor(private readonly prisma: PrismaService) {}
-  async getRaceRanking(season: string) {
+  async getRaceRanking(season: string): Promise<BaseResponse<RankingRaces[]>> {
     const result = await this.prisma.ranking.findMany({
       where: {
         seasonName: season,
@@ -17,6 +30,7 @@ export class RankingService {
         points: true,
         laps: true,
         time: true,
+        grandPrix: true,
         race: {
           select: {
             date: true,
@@ -47,9 +61,10 @@ export class RankingService {
         },
       },
     });
-    return result.map((item) => {
+    const data = result.map((item) => {
       return {
         position: item.position,
+        grandPrix: item.grandPrix,
         points: item.points,
         laps: item.laps,
         time: item.time,
@@ -59,8 +74,16 @@ export class RankingService {
         team: item.driver.driverTeamSeason[0]?.team.name,
       };
     });
+    return {
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data,
+    };
   }
-  async getRaceRankingDetail(season: string, grandPrix: string) {
+  async getRaceRankingDetail(
+    season: string,
+    grandPrix: string,
+  ): Promise<BaseResponse<RankingRacesDetail>> {
     const result = await this.prisma.ranking.findMany({
       where: {
         seasonName: season,
@@ -123,11 +146,17 @@ export class RankingService {
       },
     });
     return {
-      ...race,
-      rank,
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data: {
+        ...race,
+        rank,
+      },
     };
   }
-  async getDriverRanking(season: string) {
+  async getDriverRanking(
+    season: string,
+  ): Promise<BaseResponse<RankingDriver[]>> {
     const sumPoints = await this.prisma.ranking.groupBy({
       by: ['driverName'],
       where: {
@@ -165,7 +194,7 @@ export class RankingService {
         },
       },
     });
-    return result.map((item, index) => {
+    const data = result.map((item, index) => {
       return {
         position: index + 1,
         name: item.name,
@@ -175,8 +204,17 @@ export class RankingService {
           .points,
       };
     });
+
+    return {
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data,
+    };
   }
-  async getDriverRankingDetail(season: string, driverName: string) {
+  async getDriverRankingDetail(
+    season: string,
+    driverName: string,
+  ): Promise<BaseResponse<RankingDriverDetail[]>> {
     const result = await this.prisma.ranking.findMany({
       where: {
         seasonName: season,
@@ -213,7 +251,7 @@ export class RankingService {
       },
     });
 
-    return result.map((item) => {
+    const data = result.map((item) => {
       return {
         grandPrix: item.grandPrix,
         date: item.race.date,
@@ -224,8 +262,13 @@ export class RankingService {
         time: item.time,
       };
     });
+    return {
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data,
+    };
   }
-  async getTeamRanking(season: string) {
+  async getTeamRanking(season: string): Promise<BaseResponse<RankingTeam[]>> {
     const drivers = await this.getDriverRanking(season);
     const teams = await this.prisma.driverTeamSeason.findMany({
       where: {
@@ -245,7 +288,9 @@ export class RankingService {
       },
     });
     const teamRanking = teams.reduce((acc, item) => {
-      const driver = drivers.find((driver) => driver.name === item.driver.name);
+      const driver = drivers.data.find(
+        (driver) => driver.name === item.driver.name,
+      );
       if (driver) {
         const team = acc.find((team) => team.name === item.team.name);
         if (team) {
@@ -260,9 +305,16 @@ export class RankingService {
       return acc;
     }, []);
 
-    return teamRanking.sort((a, b) => b.points - a.points);
+    return {
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data: teamRanking.sort((a, b) => b.points - a.points),
+    };
   }
-  async getTeamRankingDetail(season: string, teamName: string) {
+  async getTeamRankingDetail(
+    season: string,
+    teamName: string,
+  ): Promise<BaseResponse<RankingTeamDetail[]>> {
     const teams = await this.prisma.driverTeamSeason.findMany({
       where: {
         seasonName: season,
@@ -276,11 +328,11 @@ export class RankingService {
           season,
           team.driverName,
         );
-        return driver;
+        return driver.data;
       }),
     );
     const flattenDrivers = driversDetail.flat();
-    return flattenDrivers.reduce((acc, item) => {
+    const data = flattenDrivers.reduce((acc, item) => {
       const index = acc.findIndex(
         (driver) => driver?.grandPrix === item.grandPrix,
       );
@@ -297,5 +349,10 @@ export class RankingService {
         return [...acc, newItem];
       }
     }, []);
+    return {
+      success: true,
+      message: 'Ranking retrieved successfully',
+      data,
+    };
   }
 }
