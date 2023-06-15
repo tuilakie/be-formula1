@@ -218,7 +218,10 @@ export class RankingService {
     const result = await this.prisma.ranking.findMany({
       where: {
         seasonName: season,
-        driverName: driverName,
+        driverName: {
+          equals: driverName,
+          mode: 'insensitive',
+        },
       },
       orderBy: {
         race: {
@@ -318,7 +321,10 @@ export class RankingService {
     const teams = await this.prisma.driverTeamSeason.findMany({
       where: {
         seasonName: season,
-        teamName: teamName,
+        teamName: {
+          equals: teamName,
+          mode: 'insensitive',
+        },
       },
     });
 

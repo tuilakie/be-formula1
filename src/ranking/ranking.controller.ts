@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { RankingService } from './ranking.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import {
   RankingRaces,
   RankingRacesDetail,
